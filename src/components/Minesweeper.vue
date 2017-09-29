@@ -4,11 +4,11 @@
     <div class="game">
       <div class="message">{{ message }}</div>
       <div class="board">
-        <div v-for="row in rows">
-          <div v-for="col in cols" class="cell" />
+        <div v-for="cellsRow in cells">
+          <div v-for="cell in cellsRow" class="cell" />
         </div>
       </div>
-      <button class="action">{{ action }}</button>
+      <button class="action" @click="restart">{{ action }}</button>
     </div>
   </div>
 </template>
@@ -19,10 +19,32 @@ export default {
     return {
       title: 'Minesweeper',
       message: '',
-      action: 'Start',
+      action: 'Restart',
       rows: 10,
-      cols: 10
+      cols: 10,
+      cells: []
     }
+  },
+  methods: {
+    restart () {
+      const cells = []
+      for (let row = 0; row < this.rows; ++row) {
+        const cellsRow = []
+        for (let col = 0; col < this.cols; ++col) {
+          const id = (row * this.rows) + col
+          cellsRow.push({
+            id,
+            mine: false,
+            state: 'empty'
+          })
+        }
+        cells.push(cellsRow)
+      }
+      this.cells = cells
+    }
+  },
+  created () {
+    this.restart()
   }
 }
 </script>
