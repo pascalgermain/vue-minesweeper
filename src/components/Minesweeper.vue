@@ -1,24 +1,22 @@
 <template>
-  <div>
-    <h1>Minesweeper</h1>
-    <div class="game">
-      <div class="message">
-        {{ message }}
-        <span v-if="mood" class="mood">{{ mood }}</span>
-      </div>
-      <div v-for="cellsRow in cells">
-        <div
-          v-for="cell in cellsRow"
-          :class="['cell', 'cell-' + (cell.mine && show ? 'mine' : cell.state)]"
-          @mouseup.left="cellClick(cell)"
-          @mouseup.right="cellFlag(cell)"
-          @contextmenu.prevent
-        />
-      </div>
-      <button class="action" @click="restart">Restart</button>
-      <button v-if="toggleButton" class="action" @click="toggle">Toggle</button>
+  <div class="minesweeper">
+    <div class="message">
+      {{ message }}
+      <span v-if="mood" class="mood">{{ mood }}</span>
     </div>
+    <div v-for="cellsRow in cells">
+      <div
+        v-for="cell in cellsRow"
+        :class="['cell', 'cell-' + (cell.mine && show ? 'mine' : cell.state)]"
+        @mouseup.left="cellClick(cell)"
+        @mouseup.right="cellFlag(cell)"
+        @contextmenu.prevent
+      />
+    </div>
+    <button class="action" @click="restart">Restart</button>
+    <button v-if="toggleButton" class="action" @click="toggle">Toggle</button>
   </div>
+</div>
 </template>
 
 <script>
@@ -134,16 +132,12 @@ export default {
 </script>
 
 <style scoped>
-h1 {
-  font-weight: normal;
-}
-
-.game,
+.minesweeper,
 .cell {
   display: inline-block;
 }
 
-.game {
+.minesweeper {
   padding: 3px 3px 0;
   background: #ccc;
   white-space: nowrap;
