@@ -2,9 +2,18 @@
   <div>
     <h1>Minesweeper</h1>
     <div class="game">
-      <div class="message">{{ message }}</div>
+      <div class="message">
+        {{ message }}
+        <span v-if="mood" class="mood">{{ mood }}</span>
+      </div>
       <div v-for="cellsRow in cells">
-        <div v-for="cell in cellsRow" :class="['cell', 'cell-' + cell.state, {'cell-show': cell.mine && show}]" />
+        <div
+          v-for="cell in cellsRow"
+          :class="['cell', 'cell-' + (cell.mine && show ? 'mine' : cell.state)]"
+          @mouseup.left="cellClick(cell)"
+          @mouseup.right="cellFlag(cell)"
+          @contextmenu.prevent
+        />
       </div>
       <button class="action" @click="restart">Restart</button>
       <button class="action" @click="toggle">Toggle</button>
@@ -20,19 +29,59 @@ export default {
       cols: 10,
       mines: 10,
       cells: [],
+      found: 0,
       show: false,
-      message: ''
+      finished: false
+    }
+  },
+  computed: {
+    won () {
+      return this.found === this.mines
+    },
+    message () {
+      if (this.finished) return this.won ? 'You win' : 'You lose'
+      return this.mines - this.found
+    },
+    mood () {
+      if (this.finished) return this.won ? '😃' : '😞'
+      return ''
     }
   },
   methods: {
+    finish () {
+      this.show = true
+      this.finished = true
+    },
+    cellClick (cell) {
+      if (this.finished) return
+      if (cell.state !== 'default') return
+      if (cell.mine) return this.finish()
+      cell.state = 'empty'
+    },
+    cellFlag (cell) {
+      if (this.finished) return
+      if (cell.state === 'default') {
+        this.$nextTick(() => { cell.state = 'flag' })
+        ++this.found
+        if (this.won) return this.finish()
+      }
+      if (cell.state === 'flag') {
+        this.$nextTick(() => { cell.state = 'default' })
+        --this.found
+      }
+    },
     toggle () {
+      if (this.finished) return
       this.show = !this.show
+    },
+    random (max) {
+      return Math.floor(Math.random() * max)
     },
     populate () {
       let mines = 0
       while (mines < this.mines) {
-        const row = Math.floor(Math.random() * this.rows)
-        const col = Math.floor(Math.random() * this.cols)
+        const row = this.random(this.rows)
+        const col = this.random(this.cols)
         const cell = this.cells[row][col]
         if (!cell.mine) {
           cell.mine = true
@@ -41,7 +90,6 @@ export default {
       }
     },
     restart () {
-      this.message = this.mines
       const cells = []
       for (let row = 0; row < this.rows; ++row) {
         const cellsRow = []
@@ -50,12 +98,15 @@ export default {
           cellsRow.push({
             id,
             mine: false,
-            state: 'empty'
+            state: 'default'
           })
         }
         cells.push(cellsRow)
       }
       this.cells = cells
+      this.found = 0
+      this.show = false
+      this.finished = false
       this.populate()
     }
   },
@@ -84,7 +135,7 @@ h1 {
 .cell {
   width: 46px;
   height: 46px;
-  line-height: 52px;
+  line-height: 72px;
   margin: 0 3px 3px 0;
   background: #ddd;
   font-size: 22px;
@@ -95,16 +146,26 @@ h1 {
   margin-right: 0;
 }
 
+.cell-default,
 .cell-empty {
   margin-bottom: -3px;
+}
+
+.cell-empty {
+  background: #bbb;
+}
+
+.cell:after {
+  position: relative;
+  top: -10px;
 }
 
 .cell-mine:after {
   content: '💣';
 }
 
-.cell-show {
-  background: #eee;
+.cell-flag:after {
+  content: '🚩';
 }
 
 .message,
@@ -127,5 +188,10 @@ h1 {
   border: 0;
   outline: 0;
   cursor: pointer;
+}
+
+.mood {
+  position: relative;
+  top: 1px;
 }
 </style>
