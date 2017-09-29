@@ -4,11 +4,11 @@
       {{ message }}
       <span v-if="mood" class="mood">{{ mood }}</span>
     </div>
-    <div v-for="cellsRow in cells">
+    <div v-for="cellsRow of cells">
       <div
-        v-for="cell in cellsRow"
+        v-for="cell of cellsRow"
         :class="['cell', 'cell-' + (cell.mine && show ? 'mine' : cell.state)]"
-        @mouseup.left="cellClick(cell)"
+        @click="cellClick(cell)"
         @mouseup.right="cellFlag(cell)"
         @contextmenu.prevent
       />
@@ -50,7 +50,13 @@ export default {
       return Math.min(max1, max2)
     },
     won () {
-      return this.found === this.mines
+      if (this.found !== this.mines) return false
+      for (let cellsRow of this.cells) {
+        for (let cell of cellsRow) {
+          if (cell.state === 'default') return false
+        }
+      }
+      return true
     },
     message () {
       if (this.finished) return this.won ? 'You win' : 'You lose'
@@ -67,22 +73,24 @@ export default {
       this.finished = true
     },
     cellClick (cell) {
-      if (this.finished) return
-      if (cell.state !== 'default') return
-      if (cell.mine) return this.finish()
-      cell.state = 'empty'
+      if (this.finished || cell.state !== 'default') return
+      if (cell.mine) {
+        this.finish()
+        return
+      }
+      cell.state = 'open'
+      if (this.won) this.finish()
     },
     cellFlag (cell) {
       if (this.finished) return
       if (cell.state === 'default') {
-        this.$nextTick(() => { cell.state = 'flag' })
+        cell.state = 'flag'
         ++this.found
-        if (this.won) return this.finish()
-      }
-      if (cell.state === 'flag') {
-        this.$nextTick(() => { cell.state = 'default' })
+      } else if (cell.state === 'flag') {
+        cell.state = 'default'
         --this.found
       }
+      if (this.won) this.finish()
     },
     toggle () {
       if (this.finished) return
@@ -158,11 +166,11 @@ export default {
 }
 
 .cell-default,
-.cell-empty {
+.cell-open {
   margin-bottom: -3px;
 }
 
-.cell-empty {
+.cell-open {
   background: #bbb;
 }
 
