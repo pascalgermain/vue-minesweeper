@@ -5,7 +5,7 @@
       <div class="message">{{ message }}</div>
       <div class="board">
         <div v-for="cellsRow in cells">
-          <div v-for="cell in cellsRow" class="cell" />
+          <div v-for="cell in cellsRow" :class="['cell', 'cell-' + cell.state]" />
         </div>
       </div>
       <button class="action" @click="restart">{{ action }}</button>
@@ -22,11 +22,25 @@ export default {
       action: 'Restart',
       rows: 10,
       cols: 10,
+      mines: 10,
       cells: []
     }
   },
   methods: {
+    populate () {
+      let mines = 0
+      while (mines < this.mines) {
+        const row = Math.floor(Math.random() * this.rows)
+        const col = Math.floor(Math.random() * this.cols)
+        const cell = this.cells[row][col]
+        if (!cell.mine) {
+          cell.mine = true
+          ++mines
+        }
+      }
+    },
     restart () {
+      this.message = this.mines
       const cells = []
       for (let row = 0; row < this.rows; ++row) {
         const cellsRow = []
@@ -41,6 +55,7 @@ export default {
         cells.push(cellsRow)
       }
       this.cells = cells
+      this.populate()
     }
   },
   created () {
@@ -68,9 +83,15 @@ h1 {
   float: left;
   width: 46px;
   height: 46px;
+  line-height: 52px;
   margin: 0 3px 3px 0;
   background: #ddd;
+  font-size: 22px;
   cursor: pointer;
+}
+
+.cell-mine:after {
+  content: '💣';
 }
 
 .message,
