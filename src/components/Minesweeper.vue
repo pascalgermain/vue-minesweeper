@@ -4,9 +4,10 @@
     <div class="game">
       <div class="message">{{ message }}</div>
       <div v-for="cellsRow in cells">
-        <div v-for="cell in cellsRow" :class="['cell', 'cell-' + cell.state]" />
+        <div v-for="cell in cellsRow" :class="['cell', 'cell-' + cell.state, {'cell-show': cell.mine && show}]" />
       </div>
       <button class="action" @click="restart">Restart</button>
+      <button class="action" @click="toggle">Toggle</button>
     </div>
   </div>
 </template>
@@ -19,10 +20,14 @@ export default {
       cols: 10,
       mines: 10,
       cells: [],
+      show: false,
       message: ''
     }
   },
   methods: {
+    toggle () {
+      this.show = !this.show
+    },
     populate () {
       let mines = 0
       while (mines < this.mines) {
@@ -96,6 +101,10 @@ h1 {
 
 .cell-mine:after {
   content: '💣';
+}
+
+.cell-show {
+  background: #eee;
 }
 
 .message,
