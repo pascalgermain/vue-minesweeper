@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <img src="./assets/logo.png">
-    <minesweeper />
+    <minesweeper v-bind="{rows, cols, toggleButton}" />
   </div>
 </template>
 
@@ -11,6 +11,13 @@ import Minesweeper from './components/Minesweeper'
 export default {
   components: {
     Minesweeper
+  },
+  data () {
+    return {
+      rows: 10,
+      cols: 10,
+      toggleButton: true
+    }
   }
 }
 </script>

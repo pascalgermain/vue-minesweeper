@@ -16,18 +16,29 @@
         />
       </div>
       <button class="action" @click="restart">Restart</button>
-      <button class="action" @click="toggle">Toggle</button>
+      <button v-if="toggleButton" class="action" @click="toggle">Toggle</button>
     </div>
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    rows: {
+      type: Number,
+      default: 10
+    },
+    cols: {
+      type: Number,
+      default: 10
+    },
+    toggleButton: {
+      type: Boolean,
+      default: false
+    }
+  },
   data () {
     return {
-      rows: 10,
-      cols: 10,
-      mines: 10,
       cells: [],
       found: 0,
       show: false,
@@ -35,6 +46,11 @@ export default {
     }
   },
   computed: {
+    mines () {
+      const max1 = Math.max(this.rows, this.cols)
+      const max2 = (this.rows * this.cols) - 1
+      return Math.min(max1, max2)
+    },
     won () {
       return this.found === this.mines
     },
@@ -105,13 +121,14 @@ export default {
       }
       this.cells = cells
       this.found = 0
-      this.show = false
+      if (this.finished) this.show = false
       this.finished = false
       this.populate()
     }
   },
   created () {
     this.restart()
+    Object.keys(this.$props).forEach(prop => { this.$watch(prop, this.restart) })
   }
 }
 </script>
