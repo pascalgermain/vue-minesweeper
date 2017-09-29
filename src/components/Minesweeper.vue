@@ -8,6 +8,7 @@
       <div
         v-for="cell of cellsRow"
         :class="['cell', 'cell-' + (cell.mine && show ? 'mine' : cell.state)]"
+        :data-around="cell.around || ''"
         @click="cellClick(cell)"
         @mouseup.right="cellFlag(cell)"
         @contextmenu.prevent
@@ -96,6 +97,25 @@ export default {
       if (this.finished) return
       this.show = !this.show
     },
+    map (x, y, callback) {
+      const vectors = [[-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]]
+      for (let vector of vectors) {
+        const mx = x + vector[0]
+        const my = y + vector[1]
+        if (mx >= 0 && my >= 0 && mx < this.cols && my < this.rows) {
+          callback(this.cells[my][mx])
+        }
+      }
+    },
+    calculate () {
+      for (let row = 0; row < this.rows; ++row) {
+        for (let col = 0; col < this.cols; ++col) {
+          this.map(col, row, cell => {
+            if (cell.mine) ++this.cells[row][col].around
+          })
+        }
+      }
+    },
     random (max) {
       return Math.floor(Math.random() * max)
     },
@@ -116,11 +136,10 @@ export default {
       for (let row = 0; row < this.rows; ++row) {
         const cellsRow = []
         for (let col = 0; col < this.cols; ++col) {
-          const id = (row * this.rows) + col
           cellsRow.push({
-            id,
             mine: false,
-            state: 'default'
+            state: 'default',
+            around: 0
           })
         }
         cells.push(cellsRow)
@@ -130,11 +149,14 @@ export default {
       if (this.finished) this.show = false
       this.finished = false
       this.populate()
+      this.calculate()
     }
   },
   created () {
     this.restart()
-    Object.keys(this.$props).forEach(prop => { this.$watch(prop, this.restart) })
+    Object.keys(this.$props).forEach(prop => {
+      this.$watch(prop, this.restart)
+    })
   }
 }
 </script>
@@ -177,6 +199,10 @@ export default {
 .cell:after {
   position: relative;
   top: -10px;
+}
+
+.cell-open:after {
+  content: attr(data-around);
 }
 
 .cell-mine:after {
