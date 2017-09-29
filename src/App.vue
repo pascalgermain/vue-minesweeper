@@ -1,17 +1,16 @@
 <template>
   <div id="app">
     <img src="./assets/logo.png">
-    <hello></hello>
+    <minesweeper />
   </div>
 </template>
 
 <script>
-import Hello from './components/Hello'
+import Minesweeper from './components/Minesweeper'
 
 export default {
-  name: 'app',
   components: {
-    Hello
+    Minesweeper
   }
 }
 </script>
