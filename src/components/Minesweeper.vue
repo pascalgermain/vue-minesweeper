@@ -1,14 +1,12 @@
 <template>
   <div>
-    <h1>{{ title }}</h1>
+    <h1>Minesweeper</h1>
     <div class="game">
       <div class="message">{{ message }}</div>
-      <div class="board">
-        <div v-for="cellsRow in cells">
-          <div v-for="cell in cellsRow" :class="['cell', 'cell-' + cell.state]" />
-        </div>
+      <div v-for="cellsRow in cells">
+        <div v-for="cell in cellsRow" :class="['cell', 'cell-' + cell.state]" />
       </div>
-      <button class="action" @click="restart">{{ action }}</button>
+      <button class="action" @click="restart">Restart</button>
     </div>
   </div>
 </template>
@@ -17,13 +15,11 @@
 export default {
   data () {
     return {
-      title: 'Minesweeper',
-      message: '',
-      action: 'Restart',
       rows: 10,
       cols: 10,
       mines: 10,
-      cells: []
+      cells: [],
+      message: ''
     }
   },
   methods: {
@@ -69,18 +65,18 @@ h1 {
   font-weight: normal;
 }
 
-.game {
+.game,
+.cell {
   display: inline-block;
-  padding: 3px 0 3px 3px;
-  background: #ccc;
 }
 
-.board {
-  margin: 3px 0;
+.game {
+  padding: 3px 3px 0;
+  background: #ccc;
+  white-space: nowrap;
 }
 
 .cell {
-  float: left;
   width: 46px;
   height: 46px;
   line-height: 52px;
@@ -90,6 +86,14 @@ h1 {
   cursor: pointer;
 }
 
+.cell:last-child {
+  margin-right: 0;
+}
+
+.cell-empty {
+  margin-bottom: -3px;
+}
+
 .cell-mine:after {
   content: '💣';
 }
@@ -97,13 +101,19 @@ h1 {
 .message,
 .action {
   height: 30px;
+  margin-bottom: 3px;
   background: #42b983;
-  font-size: 22px;
+  font-size: 20px;
   color: #fff;
   text-transform: uppercase;
 }
 
+.message {
+  line-height: 32px;
+}
+
 .action {
+  display: block;
   width: 100%;
   border: 0;
   outline: 0;
