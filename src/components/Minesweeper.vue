@@ -80,6 +80,7 @@ export default {
         return
       }
       cell.state = 'open'
+      if (cell.around === 0) this.propagate(cell)
       if (this.won) this.finish()
     },
     cellFlag (cell) {
@@ -100,12 +101,22 @@ export default {
     map (x, y, callback) {
       const vectors = [[-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]]
       for (let vector of vectors) {
-        const mx = x + vector[0]
-        const my = y + vector[1]
-        if (mx >= 0 && my >= 0 && mx < this.cols && my < this.rows) {
-          callback(this.cells[my][mx])
+        const dX = x + vector[0]
+        const dY = y + vector[1]
+        if (dX >= 0 && dY >= 0 && dX < this.cols && dY < this.rows) {
+          callback(this.cells[dY][dX])
         }
       }
+    },
+    propagate (cell) {
+      cell.state = 'open'
+      this.map(cell.col, cell.row, cell => {
+        if (cell.state === 'default' && cell.around === 0) {
+          this.propagate(cell)
+          return
+        }
+        cell.state = 'open'
+      })
     },
     calculate () {
       for (let row = 0; row < this.rows; ++row) {
@@ -137,6 +148,8 @@ export default {
         const cellsRow = []
         for (let col = 0; col < this.cols; ++col) {
           cellsRow.push({
+            row,
+            col,
             mine: false,
             state: 'default',
             around: 0
