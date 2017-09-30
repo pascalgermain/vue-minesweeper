@@ -1,6 +1,8 @@
-# vue-minesweeper
+# Vue Minesweeper
 
-> A Vue.js project
+> A Vue.js Minesweeper game, inspired by [Weex Playground's Minesweeper](https://github.com/apache/incubator-weex/blob/master/examples/showcase/minesweeper.we).
+
+> http://pascalgermain.github.io/vue-minesweeper/
 
 ## Build Setup
 

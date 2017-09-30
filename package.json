@@ -1,9 +1,9 @@
 {
   "name": "vue-minesweeper",
   "version": "1.0.0",
-  "description": "A Vue.js project",
+  "description": "A Vue.js Minesweeper game, inspired by Weex Playground's Minesweeper.",
   "author": "Pascal Germain <pascalgermain@me.com>",
-  "private": true,
+  "homepage": "http://pascalgermain.github.io/vue-minesweeper",
   "scripts": {
     "dev": "node build/dev-server.js",
     "start": "node build/dev-server.js",
