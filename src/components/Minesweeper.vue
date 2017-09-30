@@ -14,8 +14,8 @@
         @contextmenu.prevent
       />
     </div>
-    <button class="action" @click="restart">Restart</button>
-    <button v-if="toggleButton" class="action" @click="toggle">Toggle</button>
+    <button @click="restart">Restart</button>
+    <button v-if="toggleButton" @click="toggle">Toggle</button>
   </div>
 </div>
 </template>
@@ -46,9 +46,7 @@ export default {
   },
   computed: {
     mines () {
-      const max1 = Math.max(this.rows, this.cols)
-      const max2 = (this.rows * this.cols) - 1
-      return Math.min(max1, max2)
+      return Math.ceil((this.rows * this.cols) / 6)
     },
     won () {
       if (this.found !== this.mines) return false
@@ -165,11 +163,16 @@ export default {
       this.calculate()
     }
   },
+  watch: {
+    rows () {
+      this.restart()
+    },
+    cols () {
+      this.restart()
+    }
+  },
   created () {
     this.restart()
-    Object.keys(this.$props).forEach(prop => {
-      this.$watch(prop, this.restart)
-    })
   }
 }
 </script>
@@ -215,6 +218,8 @@ export default {
 }
 
 .cell-open:after {
+  top: -12px;
+  font-size: 20px;
   content: attr(data-around);
 }
 
@@ -227,7 +232,7 @@ export default {
 }
 
 .message,
-.action {
+button {
   height: 30px;
   margin-bottom: 3px;
   background: #42b983;
@@ -240,7 +245,7 @@ export default {
   line-height: 32px;
 }
 
-.action {
+button {
   display: block;
   width: 100%;
   border: 0;
