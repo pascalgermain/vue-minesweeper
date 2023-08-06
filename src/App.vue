@@ -1,7 +1,9 @@
 <template>
   <div id="app">
+    <GithubCorner url="pascalgermain/vue-minesweeper" />
+
     <img alt="Vue logo" src="./assets/logo.png" />
-    <h1>Vue Minesweeper</h1>
+    <h1>Minesweeper</h1>
 
     <form>
       <label for="rows">Rows</label>
@@ -25,10 +27,11 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 
+import GithubCorner from './components/GithubCorner.vue'
 import Minesweeper from './components/Minesweeper.vue'
 
 export default defineComponent({
-  components: { Minesweeper },
+  components: { GithubCorner, Minesweeper },
 
   setup() {
     const rowsOptions = [3, 6, 9, 12, 15]
@@ -55,10 +58,6 @@ export default defineComponent({
 </style>
 
 <style scoped>
-h1 {
-  font-weight: normal;
-}
-
 form {
   margin-bottom: 30px;
 }

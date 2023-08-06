@@ -26,9 +26,9 @@ module.exports = {
         // https://github.com/lydell/eslint-plugin-simple-import-sort/blob/main/examples/.eslintrc.js
         groups: [
           ['^\\u0000'], // side effect imports
-          ['^@vue', '^vue', '^@?\\w'], // starting starting with @vue, with vue, other "external" modules
-          ['^@/(?!components/)'], // NOT starting with {alias}/components
-          ['^', '^\\.'], // the rest, relative imports (starting wit a dot)
+          ['^@vue', '^vue', '^@?\\w'], // starting with @vue, with vue, other "external" modules
+          ['^'], // the rest
+          ['\\.vue$', '^\\.'], // ending with .vue, relative imports (starting wit a dot)
         ],
       },
     ],
