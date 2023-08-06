@@ -14,6 +14,9 @@ module.exports = {
   rules: {
     'no-console': productionMode ? 'warn' : 'off',
     'no-debugger': productionMode ? 'warn' : 'off',
+    'vue/component-name-in-template-casing': ['warn', 'PascalCase', { registeredComponentsOnly: false }],
+    'vue/multi-word-component-names': 'off',
+    'vue/no-v-text': 'error',
     'import/no-duplicates': 'off',
     'import/order': 'off',
     'simple-import-sort/imports': [

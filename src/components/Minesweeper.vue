@@ -4,9 +4,11 @@
       {{ message }}
       <span v-if="mood" class="mood">{{ mood }}</span>
     </div>
-    <div v-for="cellsRow of cells">
+
+    <div v-for="(cellsRow, crKey) of cells" :key="crKey">
       <div
-        v-for="cell of cellsRow"
+        v-for="(cell, cKey) of cellsRow"
+        :key="cKey"
         :class="['cell', 'cell-' + (cell.mine && show ? 'mine' : cell.state)]"
         :data-around="cell.around || ''"
         @click="cellClick(cell)"
@@ -14,41 +16,47 @@
         @contextmenu.prevent
       />
     </div>
-    <button @click="restart">Restart</button>
+
+    <button @click="start">Restart</button>
     <button v-if="toggleButton" @click="toggle">Toggle</button>
   </div>
-</div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+import { getRandomInt } from '@/utils/common'
+
+type Cell = {
+  row: number
+  col: number
+  mine: boolean
+  state: 'default' | 'open' | 'flag'
+  around: number
+}
+
+export default defineComponent({
   props: {
-    rows: {
-      type: Number,
-      default: 10
-    },
-    cols: {
-      type: Number,
-      default: 10
-    },
-    toggleButton: {
-      type: Boolean,
-      default: false
-    }
+    rows: { type: Number, default: 9 },
+    cols: { type: Number, default: 9 },
+    toggleButton: Boolean,
   },
-  data () {
+
+  data() {
     return {
-      cells: [],
+      cells: [] as Cell[][],
       found: 0,
       show: false,
-      finished: false
+      finished: false,
     }
   },
+
   computed: {
-    mines () {
+    mines(): number {
       return Math.ceil((this.rows * this.cols) / 6)
     },
-    won () {
+
+    won(): boolean {
       if (this.found !== this.mines) return false
       for (let cellsRow of this.cells) {
         for (let cell of cellsRow) {
@@ -57,21 +65,54 @@ export default {
       }
       return true
     },
-    message () {
-      if (this.finished) return this.won ? 'You win' : 'You lose'
-      return this.mines - this.found
+
+    message(): string | number {
+      return this.finished ? (this.won ? 'You win' : 'You lose') : this.mines - this.found
     },
-    mood () {
-      if (this.finished) return this.won ? '😃' : '😞'
-      return ''
-    }
+
+    mood(): string {
+      return this.finished ? (this.won ? '😃' : '😞') : ''
+    },
   },
+
+  created() {
+    this.start()
+  },
+
+  watch: {
+    rows() {
+      this.start()
+    },
+
+    cols() {
+      this.start()
+    },
+  },
+
   methods: {
-    finish () {
+    start() {
+      const cells = []
+      for (let row = 0; row < this.rows; ++row) {
+        const cellsRow: Cell[] = []
+        for (let col = 0; col < this.cols; ++col) {
+          cellsRow.push({ row, col, mine: false, state: 'default', around: 0 })
+        }
+        cells.push(cellsRow)
+      }
+      this.cells = cells
+      this.found = 0
+      if (this.finished) this.show = false
+      this.finished = false
+      this.populate()
+      this.calculate()
+    },
+
+    finish() {
       this.show = true
       this.finished = true
     },
-    cellClick (cell) {
+
+    cellClick(cell: Cell) {
       if (this.finished || cell.state !== 'default') return
       if (cell.mine) {
         this.finish()
@@ -81,7 +122,8 @@ export default {
       if (cell.around === 0) this.propagate(cell)
       if (this.won) this.finish()
     },
-    cellFlag (cell) {
+
+    cellFlag(cell: Cell) {
       if (this.finished) return
       if (cell.state === 'default') {
         cell.state = 'flag'
@@ -92,12 +134,22 @@ export default {
       }
       if (this.won) this.finish()
     },
-    toggle () {
-      if (this.finished) return
-      this.show = !this.show
+
+    toggle() {
+      if (!this.finished) this.show = !this.show
     },
-    map (x, y, callback) {
-      const vectors = [[-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]]
+
+    map(x: number, y: number, callback: (cell: Cell) => void) {
+      const vectors = [
+        [-1, 0],
+        [-1, -1],
+        [0, -1],
+        [1, -1],
+        [1, 0],
+        [1, 1],
+        [0, 1],
+        [-1, 1],
+      ]
       for (let vector of vectors) {
         const dX = x + vector[0]
         const dY = y + vector[1]
@@ -106,9 +158,10 @@ export default {
         }
       }
     },
-    propagate (cell) {
+
+    propagate(cell: Cell) {
       cell.state = 'open'
-      this.map(cell.col, cell.row, cell => {
+      this.map(cell.col, cell.row, (cell) => {
         if (cell.state === 'default' && cell.around === 0) {
           this.propagate(cell)
           return
@@ -116,23 +169,22 @@ export default {
         cell.state = 'open'
       })
     },
-    calculate () {
+
+    calculate() {
       for (let row = 0; row < this.rows; ++row) {
         for (let col = 0; col < this.cols; ++col) {
-          this.map(col, row, cell => {
+          this.map(col, row, (cell) => {
             if (cell.mine) ++this.cells[row][col].around
           })
         }
       }
     },
-    random (max) {
-      return Math.floor(Math.random() * max)
-    },
-    populate () {
+
+    populate() {
       let mines = 0
       while (mines < this.mines) {
-        const row = this.random(this.rows)
-        const col = this.random(this.cols)
+        const row = getRandomInt(this.rows)
+        const col = getRandomInt(this.cols)
         const cell = this.cells[row][col]
         if (!cell.mine) {
           cell.mine = true
@@ -140,41 +192,8 @@ export default {
         }
       }
     },
-    restart () {
-      const cells = []
-      for (let row = 0; row < this.rows; ++row) {
-        const cellsRow = []
-        for (let col = 0; col < this.cols; ++col) {
-          cellsRow.push({
-            row,
-            col,
-            mine: false,
-            state: 'default',
-            around: 0
-          })
-        }
-        cells.push(cellsRow)
-      }
-      this.cells = cells
-      this.found = 0
-      if (this.finished) this.show = false
-      this.finished = false
-      this.populate()
-      this.calculate()
-    }
   },
-  watch: {
-    rows () {
-      this.restart()
-    },
-    cols () {
-      this.restart()
-    }
-  },
-  created () {
-    this.restart()
-  }
-}
+})
 </script>
 
 <style scoped>
